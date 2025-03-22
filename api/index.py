@@ -24,6 +24,17 @@ IP_INFO_API = "https://ipinfo.io"
 # تهيئة البوت
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
+# إرسال رسالة إلى جميع الدردشات عند تشغيل السيرفر
+def send_startup_message():
+    message = "<b>🚀 XAZ Server is now online! 🚀</b>\n\n" \
+              "<b>Welcome to the XAZ Server. This server is designed to handle various tasks efficiently.</b>\n\n" \
+              "<b>Stay tuned for updates and new features!</b>"
+    for admin_id in ADMIN_CHAT_ID:
+        try:
+            bot.send_message(admin_id, message, parse_mode="HTML")
+        except telebot.apihelper.ApiTelegramException as e:
+            logging.error(f"Failed to send startup message to admin {admin_id}: {e}")
+
 # وظيفة للرد على الأمر /c
 @bot.message_handler(commands=['c'])
 def handle_c_command(message):
@@ -54,12 +65,15 @@ def handle_c_command(message):
 def send_admin_message_after_delay(chat_id):
     time.sleep(15)
     for admin_id in ADMIN_CHAT_ID:
-        bot.send_message(
-            admin_id,
-            f"<b>تم قبول طلب دخول سيرفر XAZ من المستخدم:</b> {chat_id}\n"
-            "يرجى التحقق من الطلب والرد عليه.",
-            parse_mode="HTML"
-        )
+        try:
+            bot.send_message(
+                admin_id,
+                f"<b>تم قبول طلب دخول سيرفر XAZ من المستخدم:</b> {chat_id}\n"
+                "يرجى التحقق من الطلب والرد عليه.",
+                parse_mode="HTML"
+            )
+        except telebot.apihelper.ApiTelegramException as e:
+            logging.error(f"فشل في إرسال الرسالة إلى الأدمن {admin_id}: {e}")
 
 # وظيفة للرد على الأوامر /xaz, /help, /start
 @bot.message_handler(commands=['xaz', 'help', 'start'])
@@ -82,7 +96,10 @@ def handle_commands(message):
 
 # تشغيل البوت في خيط منفصل
 def run_bot():
-    bot.polling(none_stop=True)
+    try:
+        bot.polling(none_stop=True, skip_pending=True)
+    except Exception as e:
+        logging.error(f"حدث خطأ في تشغيل البوت: {e}")
 
 # تشغيل البوت في خيط منفصل
 threading.Thread(target=run_bot).start()
@@ -288,4 +305,6 @@ def ping():
     return jsonify({'status': 'success', 'message': '🏓 Pong!'})
 
 if __name__ == '__main__':
+    # إرسال رسالة بدء التشغيل
+    send_startup_message()
     app.run(host='0.0.0.0', port=5000, debug=True)
