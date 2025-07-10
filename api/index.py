@@ -13,7 +13,7 @@ import secrets
 app = Flask(__name__)
 
 # إعدادات البوت
-TELEGRAM_BOT_TOKEN = '7930188784:AAHWJMVr9169-IOYPK-xuQDz9CV4fIMHXys'
+TELEGRAM_BOT_TOKEN = '7355024353:AAFcH-OAF5l5Fj6-igY4jOtqZ7HtZGRrlYQ'
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 ADMIN_CHAT_ID = [7796858163, 6839275984]  # معرف الأدمن
 
